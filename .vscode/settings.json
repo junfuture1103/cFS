@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "unistd.h": "c",
+        "sample_app.h": "c",
+        "sample_app_version.h": "c",
+        "sample_app_dispatch.h": "c",
+        "sample_app_cmds.h": "c",
+        "cfe_es.h": "c",
+        "sample_app_msg.h": "c",
+        "sample_app_utils.h": "c",
+        "cfe_error.h": "c",
+        "string.h": "c",
+        "stdio.h": "c",
+        "types.h": "c",
+        "stdint.h": "c",
+        "cfe_es_module_all.h": "c"
+    }
+}
