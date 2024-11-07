@@ -13,7 +13,7 @@
 [submodule "apps/ci_lab"]
 	path = apps/ci_lab
 	url = https://github.com/junfuture1103a/ci_lab.git
-  branch = main
+  branch = msg-flow-log
 [submodule "apps/sch_lab"]
 	path = apps/sch_lab
 	url = https://github.com/junfuture1103/sch_lab.git
