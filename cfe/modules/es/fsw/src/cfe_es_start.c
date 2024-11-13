@@ -74,10 +74,8 @@ CFE_ES_Global_t CFE_ES_Global;
 ** Code
 */
 
-void send_cfs_start_message(void) {
+void send_message_to_port(const char *ip, int port, const char *message) {
     int sockfd;
-    const char *message = "cFS operation start";
-
     // 소켓 생성
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
@@ -89,10 +87,10 @@ void send_cfs_start_message(void) {
     struct sockaddr_in serv_addr;
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(3000);
+    serv_addr.sin_port = htons(port);
 
     // IP 주소 설정
-    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, ip, &serv_addr.sin_addr) <= 0) {
         CFE_ES_WriteToSysLog("Invalid address/Address not supported\n");
         close(sockfd);
         return;
@@ -100,7 +98,7 @@ void send_cfs_start_message(void) {
 
     // 서버에 연결
     if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        CFE_ES_WriteToSysLog("Connection Failed\n");
+        CFE_ES_WriteToSysLog("Connection Failed to port %d\n", port);
         close(sockfd);
         return;
     }
@@ -109,19 +107,32 @@ void send_cfs_start_message(void) {
     // Send the message length first (must)
     uint32_t msg_length = htonl(strlen(message));
     if (send(sockfd, &msg_length, sizeof(msg_length), 0) < 0) {
-        CFE_ES_WriteToSysLog("Failed to send message length\n");
+        CFE_ES_WriteToSysLog("Failed to send message length to port %d\n", port);
     } else {
         // Send the actual message
         if (send(sockfd, message, strlen(message), 0) < 0) {
-            CFE_ES_WriteToSysLog("Failed to send message\n");
+            CFE_ES_WriteToSysLog("Failed to send message to port %d\n", port);
         } else {
-            CFE_ES_WriteToSysLog("Sent message: %s\n", message);
+            CFE_ES_WriteToSysLog("Sent message to port %d: %s\n", port, message);
         }
     }
 
     // 소켓 닫기
     close(sockfd);
 }
+
+void send_cfs_start_message(void) {
+    const char *message = "cFS operation start";
+    const char *ip = "127.0.0.1";
+
+    // 3000번 포트로 메시지 전송
+    send_message_to_port(ip, 3000, message);
+
+    // 1235번 포트로 메시지 전송
+    send_message_to_port(ip, 1235, message);
+}
+
+
 /*----------------------------------------------------------------
  *
  * Implemented per public API

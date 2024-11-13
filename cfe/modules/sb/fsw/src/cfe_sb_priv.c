@@ -1314,35 +1314,35 @@ void CFE_SB_TransmitTxn_Execute(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_Buffer
         CFE_ES_WriteToSysLog("[1-4] Connection Failed\n");
         close(sockfd);
         free(msgContent);
-        return;
+    }else{
+        // Send MsgSize first
+        uint32_t netMsgSize = htonl(MsgSize); // Convert to network byte order
+        if (send(sockfd, &netMsgSize, sizeof(netMsgSize), 0) < 0) {
+            CFE_ES_WriteToSysLog("[1-4] Failed to send MsgSize\n");
+            close(sockfd);
+            free(msgContent);
+        }
+        else{
+            // Send the actual message buffer
+            if (send(sockfd, bytePtr, MsgSize, 0) < 0) {
+                CFE_ES_WriteToSysLog("[1-4] Failed to send BufPtr data\n");
+                close(sockfd);
+                free(msgContent);
+            }
+            else{
+                CFE_ES_WriteToSysLog("[1-4] Successfully sent MsgSize and BufPtr data to 127.0.0.1:3000\n");
+
+                // Close the socket
+                close(sockfd);
+
+                /* End of new code */
+
+                // Free the allocated memory
+                free(msgContent);
+            }
+        }
     }
 
-    // Send MsgSize first
-    uint32_t netMsgSize = htonl(MsgSize); // Convert to network byte order
-    if (send(sockfd, &netMsgSize, sizeof(netMsgSize), 0) < 0) {
-        CFE_ES_WriteToSysLog("[1-4] Failed to send MsgSize\n");
-        close(sockfd);
-        free(msgContent);
-        return;
-    }
-
-    // Send the actual message buffer
-    if (send(sockfd, bytePtr, MsgSize, 0) < 0) {
-        CFE_ES_WriteToSysLog("[1-4] Failed to send BufPtr data\n");
-        close(sockfd);
-        free(msgContent);
-        return;
-    }
-
-    CFE_ES_WriteToSysLog("[1-4] Successfully sent MsgSize and BufPtr data to 127.0.0.1:3000\n");
-
-    // Close the socket
-    close(sockfd);
-
-    /* End of new code */
-
-    // Free the allocated memory
-    free(msgContent);
     /* by juntheworld */
 
     /* Rest of your function remains unchanged */

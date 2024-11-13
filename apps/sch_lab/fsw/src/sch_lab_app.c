@@ -128,7 +128,7 @@ void SCH_LAB_AppMain(void)
                     {
                         LocalStateEntry->Counter = 0;
                         // Off by Juntheworld
-                        //CFE_SB_TransmitMsg(CFE_MSG_PTR(LocalStateEntry->CommandHeader), true);
+                        CFE_SB_TransmitMsg(CFE_MSG_PTR(LocalStateEntry->CommandHeader), true);
                     }
                 }
                 ++LocalStateEntry;

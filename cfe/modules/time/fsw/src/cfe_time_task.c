@@ -340,7 +340,7 @@ int32 CFE_TIME_SendHkCmd(const CFE_TIME_SendHkCmd_t *data)
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_TIME_Global.HkPacket.TelemetryHeader));
     
     //Off by juntheworld
-    //CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.HkPacket.TelemetryHeader), true);
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.HkPacket.TelemetryHeader), true);
 
     /*
     ** Note: we only increment the command execution counter when
@@ -518,7 +518,7 @@ int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
     */
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_TIME_Global.DiagPacket.TelemetryHeader));
     //off by juntheworld
-    //CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.DiagPacket.TelemetryHeader), true);
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_TIME_Global.DiagPacket.TelemetryHeader), true);
 
     CFE_EVS_SendEvent(CFE_TIME_DIAG_EID, CFE_EVS_EventType_DEBUG, "Request diagnostics command");
 
