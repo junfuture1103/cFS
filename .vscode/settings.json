@@ -13,6 +13,8 @@
         "stdio.h": "c",
         "types.h": "c",
         "stdint.h": "c",
-        "cfe_es_module_all.h": "c"
+        "cfe_es_module_all.h": "c",
+        "sample_lib.h": "c",
+        "cfe_platform_cfg.h": "c"
     }
 }

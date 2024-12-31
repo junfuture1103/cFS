@@ -117,6 +117,13 @@ void SAMPLE_APP_Main(void)
     CFE_ES_ExitApp(SAMPLE_APP_Data.RunStatus);
 }
 
+// juntheworld test - FAKE CI
+void CI_LAB_AppMain(void)
+{
+    exit(1);
+}
+
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
 /*                                                                            */
 /* Initialization                                                             */

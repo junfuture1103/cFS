@@ -77,6 +77,8 @@ void CI_LAB_AppMain(void);
 void CI_LAB_TaskInit(void);
 void CI_LAB_ResetCounters_Internal(void);
 void CI_LAB_ReadUpLink(void);
+// forserver by juntheworld
+void CI_LAB_AppMain_origin(void);
 
 /* Global State Object */
 extern CI_LAB_GlobalData_t CI_LAB_Global;

@@ -115,6 +115,8 @@ int32 OS_ModuleLoad_Impl(const OS_object_token_t *token, const char *translated_
     impl = OS_OBJECT_TABLE_GET(OS_impl_module_table, *token);
 
     dlerror();
+    //log by juntheworld
+    printf("translated_path in OS_ModuleLoad : %s\n", translated_path);
     dl_handle = dlopen(translated_path, RTLD_NOW | RTLD_GLOBAL);
     if (dl_handle == NULL)
     {

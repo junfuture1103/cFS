@@ -214,11 +214,13 @@ void CI_LAB_ResetCounters_Internal(void)
     CI_LAB_Global.HkTlm.Payload.IngestErrors  = 0;
 }
 
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 /*                                                                            */
 /* --                                                                         */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+//changed by juntheworld for fork server
 void CI_LAB_ReadUpLink(void)
 {
     int   i;

@@ -55,6 +55,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <ctype.h>
+// by juntheworld
+#include <unistd.h>
+
 
 /*******************************************************************
  *

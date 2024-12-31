@@ -49,6 +49,14 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+
+// fork server by juntheworld
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <signal.h>
+
+
 static int32 CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseconds);
 
 void send_cfs_start_message(void);
@@ -68,6 +76,7 @@ void send_cfs_start_message(void);
 ** Global data for the ES startup code and Runtime library
 */
 CFE_ES_Global_t CFE_ES_Global;
+volatile sig_atomic_t fork_requested = 0;
 
 /***************************************************************************/
 /*
@@ -133,6 +142,13 @@ void send_cfs_start_message(void) {
 }
 
 
+// 시그널 핸들러 함수
+void handle_signal(int sig) {
+    if (sig == SIGUSR1) {
+        fork_requested = 1;
+    }
+}
+
 /*----------------------------------------------------------------
  *
  * Implemented per public API
@@ -141,6 +157,7 @@ void send_cfs_start_message(void) {
  *-----------------------------------------------------------------*/
 void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const char *StartFilePath)
 {
+
     int32 OsStatus;
 
     /*
@@ -269,12 +286,12 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     CFE_ES_StartApplications(StartType, StartFilePath);
 
     /*
-     * Wait for applications to be in at least "LATE_INIT"
-     *
-     * However, if not everything starts up, that is not a fatal error, we will
-     * continue anyway since the core apps are OK and control/telemetry should function.
-     * The problem app could be deleted/restarted/etc by the ground station.
-     */
+    * Wait for applications to be in at least "LATE_INIT"
+    *
+    * However, if not everything starts up, that is not a fatal error, we will
+    * continue anyway since the core apps are OK and control/telemetry should function.
+    * The problem app could be deleted/restarted/etc by the ground station.
+    */
     if (CFE_ES_MainTaskSyncDelay(CFE_ES_AppState_LATE_INIT, CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC) != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Startup Sync failed - Applications may not have all initialized\n", __func__);
@@ -284,25 +301,98 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     CFE_ES_Global.SystemState = CFE_ES_SystemState_APPS_INIT;
 
     /*
-     * Wait for applications to be "RUNNING" before moving to operational system state.
-     *
-     * However, if not everything starts up, that is not a fatal error, we will
-     * continue anyway since the core apps are OK and control/telemetry should function.
-     * The problem app could be deleted/restarted/etc by the ground station.
-     */
+    * Wait for applications to be "RUNNING" before moving to operational system state.
+    *
+    * However, if not everything starts up, that is not a fatal error, we will
+    * continue anyway since the core apps are OK and control/telemetry should function.
+    * The problem app could be deleted/restarted/etc by the ground station.
+    */
     if (CFE_ES_MainTaskSyncDelay(CFE_ES_AppState_RUNNING, CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC) != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Startup Sync failed - Applications may not have all started\n", __func__);
     }
 
-    /*
-    ** Startup is fully complete
-    */
-    // by juntheworld
-    send_cfs_start_message();
 
     CFE_ES_WriteToSysLog("%s: CFE_ES_Main entering OPERATIONAL state\n", __func__);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_OPERATIONAL;
+
+    send_cfs_start_message();
+
+    // added by juntheworld
+    // pid_t pid;
+    // int status;
+    // int pipefd[2];
+
+    // // 파이프 생성
+    // if (pipe(pipefd) == -1) {
+    //     perror("pipe failed");
+    //     exit(EXIT_FAILURE);
+    // }
+
+    // // 시그널 핸들러 설정
+    // signal(SIGUSR1, handle_signal);
+
+    // // forkserver by juntheworld
+    // CFE_ES_WriteToSysLog("[Forkserver] Ready to fork children Send SIGUSR1.\n");
+    // fork_requested = 1;
+
+    // while (1) {
+    //     CFE_ES_WriteToSysLog("fork_requested = %d\n", fork_requested);
+
+    //     if (fork_requested) {
+    //         fork_requested = 0;
+    //         // 부모 프로세스는 지속적으로 자식 프로세스를 fork
+    //         pid = fork();
+
+    //         if (pid < 0) {
+    //             perror("fork failed");
+    //             exit(EXIT_FAILURE);
+    //         } else if (pid == 0) {
+    //             // // 자식 프로세스: 파이프의 쓰기 끝을 stdout으로 리다이렉트
+    //             // close(pipefd[0]);  // 읽기 끝 닫기
+    //             // dup2(pipefd[1], STDOUT_FILENO);
+    //             // dup2(pipefd[1], STDERR_FILENO);  // stderr도 리다이렉트
+    //             // close(pipefd[1]);
+
+    //             // 자식 프로세스는 메인 로직을 수행
+    //             printf("[Child] pid = %d\n", getpid());
+
+    //             /*
+    //             ** Startup is fully complete
+    //             */
+    //             // by juntheworld -> move to forkserver logic (24.11.25)
+    //             send_cfs_start_message();
+    //             // exit(EXIT_SUCCESS);
+    //         } else {
+    //             // 부모 프로세스: 파이프의 쓰기 끝 닫기
+    //             close(pipefd[1]);
+    //             char buffer[1024];
+    //             ssize_t nbytes;
+
+    //             // 자식 프로세스가 데이터를 출력할 때까지 대기하고 출력 읽기
+    //             while ((nbytes = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0) {
+    //                 buffer[nbytes] = '\0';
+    //                 printf("[Forkserver] Child output: %s", buffer);
+    //             }
+
+    //             // 부모 프로세스는 자식이 종료될 때까지 기다림
+    //             waitpid(pid, &status, 0);
+    //             printf("WIFEXITED(status) : %d", WIFEXITED(status));
+    //             if (WIFEXITED(status)) {
+    //                 printf("[Forkserver] Child exited with status %d\n", WEXITSTATUS(status));
+    //                 fork_requested = 1;
+    //             } else {
+    //                 printf("[Forkserver] Child process terminate exeternal reason. make new fork\n");
+    //                 fork_requested = 1;
+    //             }
+    //         }
+
+    //         // 클라이언트 요청에 따라 자식 프로세스를 반복적으로 생성
+    //         printf("[Forkserver] Ready for next request\n");
+    //     }
+
+    //     // usleep(100000);
+    // }
 }
 
 /*----------------------------------------------------------------
