@@ -311,7 +311,9 @@ void CI_LAB_ReadUpLink(void)
                     serv_addr.sin_family = AF_INET;
                     serv_addr.sin_port = htons(3000);
 
-                    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+                    const char *ip = "10.0.2.2";
+
+                    if (inet_pton(AF_INET, ip, &serv_addr.sin_addr) <= 0) {
                         CFE_ES_WriteToSysLog("Invalid address/Address not supported\n");
                         close(sockfd);
                     } else {

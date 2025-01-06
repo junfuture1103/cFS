@@ -1040,7 +1040,7 @@ void CFE_SB_TransmitTxn_FindDestinations(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_
             DestPtr = DestPtr->Next;
         }
         // by juntheworld
-        CFE_ES_WriteToSysLog("\n");
+        // CFE_ES_WriteToSysLog("\n");
                 
     }
     else
@@ -1302,7 +1302,9 @@ void CFE_SB_TransmitTxn_Execute(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_Buffer
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(3000); // Port number
 
-    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+    const char *ip = "10.0.2.2";
+
+    if (inet_pton(AF_INET, ip, &serv_addr.sin_addr) <= 0) {
         CFE_ES_WriteToSysLog("[1-4] Invalid address/ Address not supported\n");
         close(sockfd);
         free(msgContent);
