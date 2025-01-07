@@ -86,6 +86,91 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+
+//function by juntheworld
+void send_message_to_port_TCP(const char *ip, int port, const char *message) {
+    int sockfd;
+    // 소켓 생성
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        CFE_ES_WriteToSysLog("Failed to create socket\n");
+        return;
+    }
+
+    // 서버 주소 설정
+    struct sockaddr_in serv_addr;
+    memset(&serv_addr, 0, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(port);
+
+    // IP 주소 설정
+    if (inet_pton(AF_INET, ip, &serv_addr.sin_addr) <= 0) {
+        CFE_ES_WriteToSysLog("Invalid address/Address not supported\n");
+        close(sockfd);
+        return;
+    }
+
+    // 서버에 연결
+    if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        CFE_ES_WriteToSysLog("Connection Failed to port %d\n", port);
+        close(sockfd);
+        return;
+    }
+
+    // 메시지 전송
+    // Send the message length first (must)
+    uint32_t msg_length = htonl(strlen(message));
+    if (send(sockfd, &msg_length, sizeof(msg_length), 0) < 0) {
+        CFE_ES_WriteToSysLog("Failed to send message length to port %d\n", port);
+    } else {
+        // Send the actual message
+        if (send(sockfd, message, strlen(message), 0) < 0) {
+            CFE_ES_WriteToSysLog("Failed to send message to port %d\n", port);
+        } else {
+            CFE_ES_WriteToSysLog("Sent message to port %d: %s\n", port, message);
+        }
+    }
+
+    // 소켓 닫기
+    close(sockfd);
+}
+
+//function by juntheworld
+void send_message_to_port_UDP(const char *ip, int port, const char *message) {
+    int sockfd;
+    // 소켓 생성
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        CFE_ES_WriteToSysLog("Failed to create socket\n");
+        return;
+    }
+
+    // 서버 주소 설정
+    struct sockaddr_in serv_addr;
+    memset(&serv_addr, 0, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(port);
+
+    // IP 주소 설정
+    if (inet_pton(AF_INET, ip, &serv_addr.sin_addr) <= 0) {
+        CFE_ES_WriteToSysLog("Invalid address/Address not supported\n");
+        close(sockfd);
+        return;
+    }
+
+    // 메시지 전송
+    ssize_t sent_bytes = sendto(sockfd, message, strlen(message), 0, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+    if (sent_bytes < 0) {
+        CFE_ES_WriteToSysLog("Failed to send message to port %d\n", port);
+    } else {
+        CFE_ES_WriteToSysLog("Sent message to port %d: %s\n", port, message);
+    }
+
+    // 소켓 닫기
+    close(sockfd);
+}
+
+
 /*----------------------------------------------------------------
  *
  * Implemented per public API
@@ -212,6 +297,8 @@ int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId)
 }
 
 /*********************************************************************/
+
+
 
 /*----------------------------------------------------------------
  *
@@ -1285,6 +1372,17 @@ void CFE_SB_TransmitTxn_Execute(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_Buffer
 
     // Print the message contents using %s
     CFE_ES_WriteToSysLog("[1-3] message hex content(size: %u) : %s\n", (unsigned int)MsgSize, msgContent);
+
+    //const char *message = "cFS operation start";
+    // in Local (no snapshot fuzzing)
+    const char *ip = "127.0.0.1";
+    // to Host (snapshot fuzzing enable)
+    // const char *ip = "10.0.2.2";
+
+    // 3000번 포트로 메시지 전송
+    send_message_to_port_UDP(ip, 3000, msgContent);
+
+    CFE_ES_WriteToSysLog("[1-4] message hex content sended");
 
     /* New code to send BufPtr and MsgSize to 127.0.0.1:3000 */
 
