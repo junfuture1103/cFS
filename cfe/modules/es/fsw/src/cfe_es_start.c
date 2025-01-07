@@ -319,7 +319,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     CFE_ES_WriteToSysLog("%s: CFE_ES_Main entering OPERATIONAL state\n", __func__);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_OPERATIONAL;
 
-    send_cfs_start_message();
+    // send_cfs_start_message();
 
     // added by juntheworld
     // pid_t pid;

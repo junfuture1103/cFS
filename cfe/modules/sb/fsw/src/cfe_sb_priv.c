@@ -1289,59 +1289,60 @@ void CFE_SB_TransmitTxn_Execute(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_Buffer
     /* New code to send BufPtr and MsgSize to 127.0.0.1:3000 */
 
     // Create a socket
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) {
-        CFE_ES_WriteToSysLog("[1-4] Failed to create socket\n");
-        free(msgContent);
-        return;
-    }
+    // Do not use TCP sending
+    // int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    // if (sockfd < 0) {
+    //     CFE_ES_WriteToSysLog("[1-4] Failed to create socket\n");
+    //     free(msgContent);
+    //     return;
+    // }
 
-    // Define the server address
-    struct sockaddr_in serv_addr;
-    memset(&serv_addr, 0, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(3000); // Port number
+    // // Define the server address
+    // struct sockaddr_in serv_addr;
+    // memset(&serv_addr, 0, sizeof(serv_addr));
+    // serv_addr.sin_family = AF_INET;
+    // serv_addr.sin_port = htons(3000); // Port number
 
-    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
-        CFE_ES_WriteToSysLog("[1-4] Invalid address/ Address not supported\n");
-        close(sockfd);
-        free(msgContent);
-        return;
-    }
+    // if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+    //     CFE_ES_WriteToSysLog("[1-4] Invalid address/ Address not supported\n");
+    //     close(sockfd);
+    //     free(msgContent);
+    //     return;
+    // }
 
-    // Connect to the server
-    if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        CFE_ES_WriteToSysLog("[1-4] Connection Failed\n");
-        close(sockfd);
-        free(msgContent);
-    }else{
-        // Send MsgSize first
-        uint32_t netMsgSize = htonl(MsgSize); // Convert to network byte order
-        if (send(sockfd, &netMsgSize, sizeof(netMsgSize), 0) < 0) {
-            CFE_ES_WriteToSysLog("[1-4] Failed to send MsgSize\n");
-            close(sockfd);
-            free(msgContent);
-        }
-        else{
-            // Send the actual message buffer
-            if (send(sockfd, bytePtr, MsgSize, 0) < 0) {
-                CFE_ES_WriteToSysLog("[1-4] Failed to send BufPtr data\n");
-                close(sockfd);
-                free(msgContent);
-            }
-            else{
-                CFE_ES_WriteToSysLog("[1-4] Successfully sent MsgSize and BufPtr data to 127.0.0.1:3000\n");
+    // // Connect to the server
+    // if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+    //     CFE_ES_WriteToSysLog("[1-4] Connection Failed\n");
+    //     close(sockfd);
+    //     free(msgContent);
+    // }else{
+    //     // Send MsgSize first
+    //     uint32_t netMsgSize = htonl(MsgSize); // Convert to network byte order
+    //     if (send(sockfd, &netMsgSize, sizeof(netMsgSize), 0) < 0) {
+    //         CFE_ES_WriteToSysLog("[1-4] Failed to send MsgSize\n");
+    //         close(sockfd);
+    //         free(msgContent);
+    //     }
+    //     else{
+    //         // Send the actual message buffer
+    //         if (send(sockfd, bytePtr, MsgSize, 0) < 0) {
+    //             CFE_ES_WriteToSysLog("[1-4] Failed to send BufPtr data\n");
+    //             close(sockfd);
+    //             free(msgContent);
+    //         }
+    //         else{
+    //             CFE_ES_WriteToSysLog("[1-4] Successfully sent MsgSize and BufPtr data to 127.0.0.1:3000\n");
 
-                // Close the socket
-                close(sockfd);
+    //             // Close the socket
+    //             close(sockfd);
 
-                /* End of new code */
+    //             /* End of new code */
 
-                // Free the allocated memory
-                free(msgContent);
-            }
-        }
-    }
+    //             // Free the allocated memory
+    //             free(msgContent);
+    //         }
+    //     }
+    // }
 
     /* by juntheworld */
 
