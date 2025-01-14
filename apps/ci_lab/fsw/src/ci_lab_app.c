@@ -45,6 +45,43 @@
 */
 CI_LAB_GlobalData_t CI_LAB_Global;
 
+// by juntheworld
+// 메시지를 UDP로 전송하는 함수
+void send_udp_message(const char *message, const char *ip_address, int port) {
+    // 소켓 생성
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) {
+        perror("Socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // 서버 주소 설정
+    struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+    if (inet_pton(AF_INET, ip_address, &server_addr.sin_addr) <= 0) {
+        perror("Invalid address or address not supported");
+        close(sock);
+        exit(EXIT_FAILURE);
+    }
+
+    // 메시지 전송
+    ssize_t sent_bytes = sendto(sock, message, strlen(message), 0, 
+                                (struct sockaddr *)&server_addr, sizeof(server_addr));
+    if (sent_bytes < 0) {
+        perror("Message send failed");
+        close(sock);
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Message sent successfully to %s:%d\n", ip_address, port);
+
+    // 소켓 닫기
+    close(sock);
+}
+
+
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                            */
 /* Application entry point and main process loop                              */
@@ -261,7 +298,18 @@ void CI_LAB_ReadUpLink(void)
                                     SBBufPtr->Msg.CCSDS.Pri.StreamId[1]);
 
                 // Message to send juntheworld socket log
-                const char *message = "\xAA\xAA\xAA\xAA";
+                const char *message = "==== new cmd msg ====\n";
+
+                // by juntheworld 25.1.14
+                //const char *message = "cFS operation start";
+                // in Local (no snapshot fuzzing)
+                // const char *ip_address = "127.0.0.1";
+                // to Host (snapshot fuzzing enable)
+                const char *ip_address = "10.0.2.2";
+                int port = 3000;
+
+                // 함수 호출
+                send_udp_message(message, ip_address, port);
                 
                 /* by juntheworld */
                 // Build a single string with the contents of BufPtr and print using %s
