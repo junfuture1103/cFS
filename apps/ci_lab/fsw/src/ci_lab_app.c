@@ -303,9 +303,9 @@ void CI_LAB_ReadUpLink(void)
                 // by juntheworld 25.1.14
                 //const char *message = "cFS operation start";
                 // in Local (no snapshot fuzzing)
-                // const char *ip_address = "127.0.0.1";
+                const char *ip_address = "127.0.0.1";
                 // to Host (snapshot fuzzing enable)
-                const char *ip_address = "10.0.2.2";
+                // const char *ip_address = "10.0.2.2";
                 int port = 3000;
 
                 // 함수 호출

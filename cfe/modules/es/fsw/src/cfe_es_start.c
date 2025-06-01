@@ -133,9 +133,9 @@ void send_message_to_port(const char *ip, int port, const char *message) {
 void send_cfs_start_message(void) {
     const char *message = "cFS operation start";
     // in Local (no snapshot fuzzing)
-    // const char *ip = "127.0.0.1";
+    const char *ip = "127.0.0.1";
     // to Host (snapshot fuzzing enable)
-    const char *ip = "10.0.2.2";
+    // const char *ip = "10.0.2.2";
 
     // 3000번 포트로 메시지 전송
     send_message_to_port(ip, 3000, message);
