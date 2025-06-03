@@ -50,5 +50,5 @@ while true; do
     echo "[+] Total coverage: $CUR_TOTAL"
     echo "[+] Summary updated: $SUMMARY_LOG"
 
-    sleep 10 # 15분 대기
+    sleep 300 # 5분 대기
 done
