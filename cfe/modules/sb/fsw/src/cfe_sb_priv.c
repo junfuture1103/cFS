@@ -1377,10 +1377,10 @@ void CFE_SB_TransmitTxn_Execute(CFE_SB_MessageTxn_State_t *TxnPtr, CFE_SB_Buffer
     // in Local (no snapshot fuzzing)
     // const char *ip = "127.0.0.1";
     // to Host (snapshot fuzzing enable)
-    const char *ip = "10.0.2.2";
+    // const char *ip = "10.0.2.2";
 
     // 3000번 포트로 메시지 전송
-    send_message_to_port_UDP(ip, 3000, msgContent);
+    // send_message_to_port_UDP(ip, 3000, msgContent);
 
     CFE_ES_WriteToSysLog("[1-4] message hex content sended");
 
