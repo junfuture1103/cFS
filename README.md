@@ -5,6 +5,7 @@
 Coverage Testing! in the Local(6.2)
 ```bash
 # for coverage testing
+init_fuzz.sh
 gcov_build.sh 
 
 # cp testing.sh to build/exe/cpu1
