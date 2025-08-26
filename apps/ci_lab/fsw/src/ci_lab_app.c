@@ -237,10 +237,25 @@ void CI_LAB_ReadUpLink(void)
             CFE_ES_PerfLogEntry(CI_LAB_SOCKET_RCV_PERF_ID);
             CfeStatus = CI_LAB_DecodeInputMessage(CI_LAB_Global.NetBufPtr, OsStatus, &SBBufPtr);
 
-            //log by juntheworld
-            CFE_ES_WriteToSysLog("\n\nCI_Uplink before SB_Transmit : StreamId[0]=0x%02X, StreamId[1]=0x%02X",
-                SBBufPtr->Msg.CCSDS.Pri.StreamId[0],
-                SBBufPtr->Msg.CCSDS.Pri.StreamId[1]);
+            // log by juntheworld
+            if (SBBufPtr != NULL) {
+                // StreamId가 2바이트 이상 확보되어 있는지 체크
+                if (&SBBufPtr->Msg.CCSDS.Pri.StreamId[1] != NULL) {
+                    CFE_ES_WriteToSysLog(
+                        "\n\nCI_Uplink before SB_Transmit : StreamId[0]=0x%02X, StreamId[1]=0x%02X",
+                        SBBufPtr->Msg.CCSDS.Pri.StreamId[0],
+                        SBBufPtr->Msg.CCSDS.Pri.StreamId[1]
+                    );
+                } else {
+                    CFE_ES_WriteToSysLog(
+                        "\n\nCI_Uplink before SB_Transmit by tester : StreamId is not fully available"
+                    );
+                }
+            } else {
+                CFE_ES_WriteToSysLog(
+                    "\n\nCI_Uplink before SB_Transmit by tester : SBBufPtr is NULL"
+                );
+            }
 
             if (CfeStatus != CFE_SUCCESS)
             {
