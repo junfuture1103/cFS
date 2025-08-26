@@ -37,7 +37,7 @@ while true; do
         if [[ "${LINE}" == *"${KEYWORD}"* ]]; then
             echo "⚠️ Detected keyword '${KEYWORD}' in message!"
             echo "$PASSWORD" | sudo -S ./share_cov_dir_setting.sh
-            echo "$PASSWORD" | sudo -S ./coverage_logger.sh
+            ./coverage_logger.sh
         fi
     done
 done
