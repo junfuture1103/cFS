@@ -22,7 +22,8 @@ mkdir -p "$LOG_DIR"
 mkdir -p "$HTML_DIR"
 
 while true; do
-    TS=$(date "+%Y%m%d_%H%M%S")
+    INDEX=$(ls "$LOG_DIR"/coverage_test_*.info 2>/dev/null | wc -l)
+    TS=$(printf "%08d" $INDEX)
 
     echo "[*] Collecting coverage at $TS"
 
